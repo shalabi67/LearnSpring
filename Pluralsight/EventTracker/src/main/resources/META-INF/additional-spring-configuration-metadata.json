@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "events.first",
+    "type": "java.lang.String",
+    "description": "A description for 'events.first'"
+  },
+  {
+    "name": "events.second",
+    "type": "java.lang.String",
+    "description": "A description for 'events.second'"
+  },
+  {
+    "name": "events.count",
+    "type": "java.lang.String",
+    "description": "A description for 'events.count'"
+  }
+]}
