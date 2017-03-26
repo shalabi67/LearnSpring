@@ -1,7 +1,8 @@
 package com.shalabi.facade;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,17 @@ import com.shalabi.repository.ShipwreckRepository;
 
 @Repository
 public class ShipwreckRepositoryImp implements ShipwreckRepository {
+	Long id = 0L;
+	List<Shipwreck> shipwrecks = new ArrayList<>();
+	public List<Shipwreck> getShipwrecks() {
+		return shipwrecks;
+	}
 
+	public void setShipwrecks(List<Shipwreck> shipwrecks) {
+		this.shipwrecks = shipwrecks;
+	}
+	
+	
 	@Override
 	public void deleteAllInBatch() {
 		// TODO Auto-generated method stub
@@ -29,8 +40,10 @@ public class ShipwreckRepositoryImp implements ShipwreckRepository {
 
 	@Override
 	public List<Shipwreck> findAll() {
-		return Collections.emptyList();
+		return shipwrecks;
 	}
+
+	
 
 	@Override
 	public List<Shipwreck> findAll(Sort arg0) {
@@ -75,9 +88,11 @@ public class ShipwreckRepositoryImp implements ShipwreckRepository {
 	}
 
 	@Override
-	public <S extends Shipwreck> S saveAndFlush(S arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public <S extends Shipwreck> S saveAndFlush(S shipwreck) {
+		id++;
+		shipwreck.setId(id);
+		shipwrecks.add(shipwreck);
+		return shipwreck;
 	}
 
 	@Override
@@ -123,9 +138,9 @@ public class ShipwreckRepositoryImp implements ShipwreckRepository {
 	}
 
 	@Override
-	public Shipwreck findOne(Long arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public Shipwreck findOne(Long id) {
+		Optional<Shipwreck> shipwerck = this.shipwrecks.stream().filter(a -> a.getId() == id).findFirst();
+		return shipwerck.get(); //
 	}
 
 	@Override
