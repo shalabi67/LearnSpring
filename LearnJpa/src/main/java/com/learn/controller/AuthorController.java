@@ -32,17 +32,11 @@ public class AuthorController {
 	
 	@RequestMapping(value="",method=RequestMethod.POST)
 	public ResponseEntity<Author> addAuthor(@RequestBody Author author) {
-		if(author == null) {
-			return new ResponseEntity<Author>(HttpStatus.BAD_REQUEST);
-		}
-		
-		
-		try {
-			Author newAuthor = authorService.addAuthor(author);
-			return new ResponseEntity<Author>(newAuthor, HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<Author>(HttpStatus.EXPECTATION_FAILED);
-		}
-		
+		return authorService.addAuthor(author);
+	}
+	
+	@RequestMapping(value="", method=RequestMethod.PUT)
+	public ResponseEntity<String> updateAuthor(@RequestBody Author author) {
+		return authorService.updateAuthor(author);
 	}
 }

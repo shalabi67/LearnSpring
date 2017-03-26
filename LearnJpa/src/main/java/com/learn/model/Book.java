@@ -6,15 +6,43 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Book {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	Long bookId;
+	private Long bookId;
 	
-	String name;
+	private String name;
 	
 	@ManyToOne
-	Author author;
+	private Author author;
 
+	public Long getBookId() {
+		return bookId;
+	}
+
+	public void setBookId(Long bookId) {
+		this.bookId = bookId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@JsonIgnore
+	public Author getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(Author author) {
+		this.author = author;
+	}
+
+	
 }

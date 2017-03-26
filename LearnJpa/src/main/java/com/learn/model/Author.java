@@ -3,6 +3,7 @@ package com.learn.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,13 +15,14 @@ import javax.persistence.OneToOne;
 public class Author {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	Long authorId;
-	String firstName;
-	String lastName;
+	private Long authorId;
+	private String firstName;
+	private String lastName;
 	@OneToOne
-	Address address;
-	@OneToMany
-	Set<Book> books = new HashSet<>();
+	private Address address;
+	
+	@OneToMany //(mappedBy="author", cascade = CascadeType.ALL)
+	private Set<Book> books = new HashSet<>();
 	
 	public Long getAuthorId() {
 		return authorId;
