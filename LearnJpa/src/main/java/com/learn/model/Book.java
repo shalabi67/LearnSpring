@@ -6,14 +6,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
 public class Book {
+	@JsonView(View.Summary.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long bookId;
 	
+	@JsonView(View.Summary.class)
 	private String name;
 	
 	@ManyToOne
@@ -35,7 +37,7 @@ public class Book {
 		this.name = name;
 	}
 
-	@JsonIgnore
+	
 	public Author getAuthor() {
 		return author;
 	}

@@ -11,16 +11,26 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 @Entity
 public class Author {
+	@JsonView(View.Summary.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long authorId;
+	
+	@JsonView(View.Summary.class)
 	private String firstName;
+	
+	@JsonView(View.Summary.class)
 	private String lastName;
+	
 	@OneToOne
+	@JsonView(View.Summary.class)
 	private Address address;
 	
+	@JsonView(View.Summary.class)
 	@OneToMany //(mappedBy="author", cascade = CascadeType.ALL)
 	private Set<Book> books = new HashSet<>();
 	

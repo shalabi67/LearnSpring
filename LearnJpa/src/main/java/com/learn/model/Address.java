@@ -5,13 +5,22 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 @Entity
 public class Address {
+	@JsonView(View.Summary.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	Long addressId;
+	
+	@JsonView(View.Summary.class)
 	String street;
+	
+	@JsonView(View.Summary.class)
 	String city;
+	
+	@JsonView(View.Summary.class)
 	String postCode;
 	public Long getAddressId() {
 		return addressId;

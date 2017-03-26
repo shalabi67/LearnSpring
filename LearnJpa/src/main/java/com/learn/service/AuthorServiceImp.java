@@ -2,6 +2,7 @@ package com.learn.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.learn.model.Author;
+import com.learn.model.Book;
 import com.learn.repository.AuthorRepository;
 
 @Service
@@ -50,5 +52,29 @@ public class AuthorServiceImp implements AuthorService {
 		authorRepository.saveAndFlush(author);
 		return new ResponseEntity<String>("Author updated succesfully", HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<Author> getAuthor(Long authorId) {
+		if(authorId == null) {
+			return new ResponseEntity<Author>(HttpStatus.NOT_FOUND);
+		}
+		
+		Author author = authorRepository.findOne(authorId);
+		if(author == null) {
+			return new ResponseEntity<Author>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Author>(author, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<Set<Book>> getAuthorBooks(Long authorId) {
+		if(authorId == null) {
+			return new ResponseEntity<Set<Book>>(HttpStatus.NOT_FOUND);
+		}
+		
+		
+		return null;
+	}
+	
 	
 }
