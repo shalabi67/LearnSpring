@@ -5,7 +5,5 @@ public class PathsConstants {
 	public static final String  authors = api + "authors";
 	public static final String  init = api + "init";
 	public static final String  authorId = "/{authorId}";
-	public static final String  authorBooks = authorId + "/{authorId}";
-
-
+	public static final String  authorBooks = authorId + "/books";
 }

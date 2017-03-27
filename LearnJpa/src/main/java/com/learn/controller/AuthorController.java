@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,11 +24,11 @@ import com.learn.service.AuthorService;
 public class AuthorController {
 	@Autowired
 	AuthorService authorService;
-
-	@JsonView(View.Summary.class)
+	@JsonView(View.Summary.class)	
 	@RequestMapping(value="", method=RequestMethod.GET)
-	public ResponseEntity<List<Author>> getAuthors() {
-		List<Author> authors = authorService.getAuthors();
+	public ResponseEntity<List<Author>> getAuthors(Pageable page) {  //?page=0&size=3
+		List<Author> authors = authorService.getAuthors(page);
+		
 		if(authors.isEmpty()) {
 			return new ResponseEntity<List<Author>>(HttpStatus.NO_CONTENT);
 		}
@@ -56,6 +57,6 @@ public class AuthorController {
 	@JsonView(View.Summary.class)
 	@RequestMapping(value=PathsConstants.authorBooks, method=RequestMethod.GET)
 	public ResponseEntity<Set<Book>> getAuthorBooks(@PathVariable Long authorId) {
-		return null;
+		return authorService.getAuthorBooks(authorId);
 	}
 }

@@ -36,6 +36,9 @@ public class DatabaseInitController {
 		
 		Author author = createAuthor("Mohammad", "Shalabi", address, book1);
 		createAuthor("Elham", "Shalabi", address1, book2);
+		for(int i=0; i<200;i++) {
+			createAuthor("Elham" + i, "Shalabi" + i, address1, book2);
+		}
 		
 		//createBook("book1", author);
 		

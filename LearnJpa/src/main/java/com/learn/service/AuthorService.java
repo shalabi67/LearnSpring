@@ -3,6 +3,7 @@ package com.learn.service;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -21,4 +22,6 @@ public interface AuthorService {
 	public ResponseEntity<Author> getAuthor(Long authorId);
 	
 	public ResponseEntity<Set<Book>>  getAuthorBooks(Long authorId);
+
+	public List<Author> getAuthors(Pageable page);
 }

@@ -31,7 +31,7 @@ public class Author {
 	private Address address;
 	
 	@JsonView(View.Summary.class)
-	@OneToMany //(mappedBy="author", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy="author", cascade = CascadeType.ALL)
 	private Set<Book> books = new HashSet<>();
 	
 	public Long getAuthorId() {

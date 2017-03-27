@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -72,9 +74,24 @@ public class AuthorServiceImp implements AuthorService {
 			return new ResponseEntity<Set<Book>>(HttpStatus.NOT_FOUND);
 		}
 		
-		
-		return null;
+		Author author = authorRepository.findOne(authorId);
+		if(author == null) {
+			return new ResponseEntity<Set<Book>>(HttpStatus.NOT_FOUND);
+		}
+		Set<Book> books = author.getBooks();
+		return new ResponseEntity<Set<Book>>(books, HttpStatus.OK);
 	}
-	
+
+	@Override
+	public List<Author> getAuthors(Pageable page) {
+		List<Author> authorsList = null;
+		if(page != null) {
+			Page<Author> authors = authorRepository.findAll(page);
+			authorsList = authors.getContent();
+		} else {
+			authorsList = this.getAuthors();
+		}
+		return authorsList;
+	}
 	
 }
