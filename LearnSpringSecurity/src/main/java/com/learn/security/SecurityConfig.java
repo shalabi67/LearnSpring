@@ -1,5 +1,7 @@
 package com.learn.security;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,14 +11,20 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
+public class SecurityConfig extends WebSecurityConfigurerAdapter {	
+	@Autowired
+	private DataSource dataSource;
+	
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder authenticationBuilder) throws Exception {
-		authenticationBuilder.inMemoryAuthentication()
+		/*authenticationBuilder.inMemoryAuthentication()
 		.withUser("user").password("123").roles("USER")
 		.and()
-		.withUser("admin").password("123").roles("USER", "ADMIN");
+		.withUser("admin").password("123").roles("USER", "ADMIN");*/
+		
+		authenticationBuilder
+			.jdbcAuthentication()
+			.dataSource(dataSource);
 		
 	}
 
