@@ -8,8 +8,6 @@ target/
 .project
 .settings
 .springBeans
-.metadata
-.recommenders
 
 ### IntelliJ IDEA ###
 .idea
@@ -24,8 +22,3 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-
-############ project
-data
-data/das.mv.db
-
