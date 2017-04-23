@@ -9,6 +9,7 @@ target/
 .settings
 .springBeans
 .metadata
+.recommenders
 
 ### IntelliJ IDEA ###
 .idea
