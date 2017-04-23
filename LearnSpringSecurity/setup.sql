@@ -15,3 +15,11 @@ INSERT INTO `spring_security`.`users` (`username`, `password`, `enabled`) VALUES
 INSERT INTO `spring_security`.`authorities` (`username`, `authority`) VALUES ('admin', 'ROLE_USER');
 INSERT INTO `spring_security`.`authorities` (`username`, `authority`) VALUES ('admin', 'ROLE_ADMIN');
 INSERT INTO `spring_security`.`authorities` (`username`, `authority`) VALUES ('user', 'ROLE_USER');
+
+update users
+	set password='$2a$10$v2mn8oxqOg/h9f5Puo7MweshRscU5NUb27wMiMalLoXc/0pFwTBCK'
+    where username='admin';
+    
+update users
+	set password='$2a$10$v2mn8oxqOg/h9f5Puo7MweshRscU5NUb27wMiMalLoXc/0pFwTBCK'
+    where username='user';
