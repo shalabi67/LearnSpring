@@ -14,6 +14,8 @@ import com.learn.model.Book;
 public interface AuthorService {
 	
 	public List<Author> getAuthors();
+
+	public List<Author> getAuthors(String firstName, String postCode);
 	
 	public ResponseEntity<Author> addAuthor(Author author);
 	

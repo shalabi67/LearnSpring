@@ -6,9 +6,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.util.Date;
 
 @Entity
-public class Address {
+public class Address extends BasicEntity {
 	@JsonView(View.Summary.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -22,6 +26,9 @@ public class Address {
 	
 	@JsonView(View.Summary.class)
 	String postCode;
+
+
+
 	public Long getAddressId() {
 		return addressId;
 	}
@@ -46,5 +53,6 @@ public class Address {
 	public void setPostCode(String postCode) {
 		this.postCode = postCode;
 	}
-	
+
+
 }

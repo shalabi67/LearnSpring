@@ -26,6 +26,11 @@ public class AuthorServiceImp implements AuthorService {
 	}
 
 	@Override
+	public List<Author> getAuthors(String firstName, String postCode) {
+		return authorRepository.findAuthorsByFirstNameStartingWithAndAddress_PostCode(firstName, postCode);
+	}
+
+	@Override
 	public ResponseEntity<Author> addAuthor(Author author) {
 		if(author == null) {
 			return new ResponseEntity<Author>(HttpStatus.BAD_REQUEST);
