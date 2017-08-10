@@ -3,6 +3,7 @@ package com.learn.repository;
 import com.learn.RedisApplication;
 import com.learn.RedisConfig;
 import com.learn.TestConfiguration;
+import com.learn.model.Address;
 import com.learn.model.Person;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,9 +25,12 @@ public class AddingPerson {
     @Autowired
     private PersonRepositoryAutoId personRepositoryAutoId;
 
+    private Address address = new Address("löwneberger str. 10", "45980", "redmond", "germany");
+
     @Test
     public void addingNewPerson() {
-        Person person = new Person(10, "mohammad", "shalabi");
+        Person person = new Person(1000, "mohammad", "shalabi");
+        person.setAddress(address);
         personRepository.save(person);
 
         Person person1 = personRepository.find(person.getId());
@@ -37,6 +41,7 @@ public class AddingPerson {
     @Test
     public void addingNewPersonWithoutId() {
         Person person = new Person(-1,"mohammad", "shalabi");
+        person.setAddress(address);
         person = personRepositoryAutoId.save(person);
 
         Person person1 = personRepository.find(person.getId());
