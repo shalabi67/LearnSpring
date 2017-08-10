@@ -1,10 +1,13 @@
 package com.learn.model;
 
+import org.springframework.data.redis.core.index.Indexed;
+
 /**
  * Created by mshalabi on 10.08.17.
  */
 public class Address {
     private String street;
+    @Indexed
     private String zip;
     private String city;
     private String country;
