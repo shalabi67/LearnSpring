@@ -1,4 +1,4 @@
-package com.learn.springboot.configuration.services;
+package com.justgifit.services;
 
 import com.madgag.gif.fmsware.AnimatedGifEncoder;
 import org.bytedeco.javacv.FFmpegFrameGrabber;

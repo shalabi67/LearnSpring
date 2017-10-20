@@ -1,4 +1,4 @@
-package com.learn.springboot.configuration.services;
+package com.justgifit.services;
 
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FrameGrabber;

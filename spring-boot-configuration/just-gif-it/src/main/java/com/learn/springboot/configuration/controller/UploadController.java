@@ -1,8 +1,8 @@
 package com.learn.springboot.configuration.controller;
 
-import com.learn.springboot.configuration.services.ConverterService;
-import com.learn.springboot.configuration.services.GifEncoderService;
-import com.learn.springboot.configuration.services.VideoDecoderService;
+import com.justgifit.services.ConverterService;
+import com.justgifit.services.GifEncoderService;
+import com.justgifit.services.VideoDecoderService;
 import com.madgag.gif.fmsware.AnimatedGifEncoder;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FrameGrabber;
