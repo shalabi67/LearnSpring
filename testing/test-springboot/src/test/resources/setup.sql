@@ -1,0 +1,1 @@
+insert into schools(school_name, zip_code) values('aaaa', '1111');
