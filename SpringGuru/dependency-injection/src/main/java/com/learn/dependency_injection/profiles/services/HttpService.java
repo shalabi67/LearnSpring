@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("http")
+@Profile({"http", "default"})
 public class HttpService implements CommunicationInterface {
 
 	@Override public String getProtocol() {
