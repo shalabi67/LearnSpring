@@ -1,6 +1,6 @@
 package com.learn.petclinic.model;
 
-public class PetType extends BaseModel {
+public class PetType extends BaseModel<Long> {
 	private String name;
 
 	public PetType(String name) {

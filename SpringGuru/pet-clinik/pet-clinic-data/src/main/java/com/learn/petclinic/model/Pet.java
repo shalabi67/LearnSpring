@@ -2,7 +2,7 @@ package com.learn.petclinic.model;
 
 import java.time.LocalDate;
 
-public class Pet extends BaseModel{
+public class Pet extends BaseModel<Long>{
 	private PetType petType;
 	private Person owner;
 	private LocalDate birthDate;
