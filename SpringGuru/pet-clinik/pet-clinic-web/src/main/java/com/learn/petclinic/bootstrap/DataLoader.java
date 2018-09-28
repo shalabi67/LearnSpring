@@ -13,8 +13,8 @@ public class DataLoader implements CommandLineRunner {
 
 	private CrudRepository<Person, Long> personRepository;
 
-	public DataLoader(CrudRepository<Person, Long> mappedPersonRepository) {
-		this.personRepository = mappedPersonRepository;
+	public DataLoader(@Qualifier(MapRepositoryConfiguration.MappedPersonRepository)CrudRepository<Person, Long> personRepository) {
+		this.personRepository = personRepository;
 	}
 
 	@Override

@@ -9,10 +9,9 @@ import org.springframework.data.repository.CrudRepository;
 
 @Configuration
 public class MapRepositoryConfiguration {
-	public static final String MappedPersonRepository = "MappedPersonRepository";
-	@Bean
-	@Qualifier(MappedPersonRepository)
-	CrudRepository<Person, Long> mappedPersonRepository() {
+	public static final String MappedPersonRepository = "mappedPersonRepository";
+	@Bean(name = {MappedPersonRepository})
+	CrudRepository<Person, Long> personRepository() {
 		return create();
 	}
 
