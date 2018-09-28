@@ -1,7 +1,10 @@
 package com.learn.petclinic.repositories;
 
+import com.learn.petclinic.model.Pet;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-public interface PetRepository<T, ID> extends CrudRepository<T, ID> {
+@Repository
+public interface PetRepository extends CrudRepository<Pet, Long> {
 
 }

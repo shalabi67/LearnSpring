@@ -1,9 +1,14 @@
 package com.learn.petclinic.model;
 
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import java.time.LocalDate;
 
+@Entity
 public class Pet extends BaseModel<Long>{
+	@OneToOne
 	private PetType petType;
+	@OneToOne
 	private Person owner;
 	private LocalDate birthDate;
 
