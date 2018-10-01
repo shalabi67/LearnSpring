@@ -8,5 +8,24 @@
 </head>
 <body>
     <h1 th:text="'Vets Main Page'">Vets page</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--/*@thymesVar id="vet" type="com.learn.petclinic.model.Person"*/-->
+        <!--/*@thymesVar id="vets" type="java.util.Set"*/-->
+        <tr th:each="vet : ${vets}">
+            <td th:text="${vet.id}">1</td>
+            <td th:text="${vet.firstName}">Joe</td>
+            <td th:text="${vet.lastName}">Buck</td>
+        </tr>
+        </tbody>
+    </table>
+
 </body>
 </html>

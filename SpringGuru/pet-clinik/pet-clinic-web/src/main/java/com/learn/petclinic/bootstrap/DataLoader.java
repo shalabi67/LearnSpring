@@ -1,8 +1,9 @@
 package com.learn.petclinic.bootstrap;
 
-import com.learn.petclinic.configuration.MapRepositoryConfiguration;
 import com.learn.petclinic.model.Occupation;
 import com.learn.petclinic.model.Person;
+import com.learn.petclinic.repositories.MapPersonRepository;
+import com.learn.petclinic.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.repository.CrudRepository;
@@ -13,15 +14,15 @@ public class DataLoader implements CommandLineRunner {
 
 	private CrudRepository<Person, Long> personRepository;
 
-	public DataLoader(@Qualifier(MapRepositoryConfiguration.MappedPersonRepository)CrudRepository<Person, Long> personRepository) {
+	public DataLoader(@Qualifier(MapPersonRepository.ID)PersonRepository personRepository) {
 		this.personRepository = personRepository;
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
 		Long occupationId = 0L;
-		Occupation vet = addOccupation(++occupationId, "vet");
-		Occupation owner = addOccupation(++occupationId, "owner");
+		Occupation vet = addOccupation(++occupationId, Occupation.vet);
+		Occupation owner = addOccupation(++occupationId, Occupation.owner);
 
 		Long personId = 0L;
 		//owners

@@ -1,19 +1,28 @@
 package com.learn.petclinic.repositories;
 
 import com.learn.petclinic.model.BaseModel;
+import com.learn.petclinic.model.Person;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Service;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+@Service
 public class MapRepository<T extends BaseModel<ID>, ID> implements CrudRepository<T, ID> {
 
+	//map of occupation and persons
+	private Map<String, Set<T>> occupationMap = new HashMap<>();
 	private Map<ID, T> repositoryMap = new HashMap<>();
 	@Override public <S extends T> S save(S s) {
 		repositoryMap.put(s.getId(), s);
+		if(s instanceof Person) {
+			addPerson(s);
+		}
 		return s;
 	}
 
@@ -57,5 +66,16 @@ public class MapRepository<T extends BaseModel<ID>, ID> implements CrudRepositor
 
 	@Override public void deleteAll() {
 		repositoryMap = new HashMap<>();
+	}
+
+	public Iterable<T> findAllByOccupation(String occupationName) {
+		return occupationMap.getOrDefault(occupationName, new HashSet<T>());
+	}
+
+	private void addPerson(T person) {
+		String occupationName = ((Person)person).getOccupation().getName();
+		Set<T> personSet = occupationMap.getOrDefault(occupationName, new HashSet<T>());
+		personSet.add(person);
+		occupationMap.put(occupationName, personSet);
 	}
 }
