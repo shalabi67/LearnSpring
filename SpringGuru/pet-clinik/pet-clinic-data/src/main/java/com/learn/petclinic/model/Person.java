@@ -10,8 +10,15 @@ import java.util.Set;
 public class Person extends BaseModel<Long> {
 	private String firstName;
 	private String lastName;
+	private String address;
+	private String city;
+	private String phoneNumber;
+
 	@OneToOne
 	private Occupation occupation;
+
+	@OneToMany
+	private Set<Speciality> specialities = new HashSet<>();
 
 	@OneToMany
 	private Set<Pet> pets = new HashSet<>();
@@ -37,11 +44,27 @@ public class Person extends BaseModel<Long> {
 		return lastName;
 	}
 
+	public String getAddress() {
+		return address;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
 	public Occupation getOccupation() {
 		return occupation;
 	}
 
 	public Set<Pet> getPets() {
 		return pets;
+	}
+
+	public Set<Speciality> getSpecialities() {
+		return specialities;
 	}
 }
