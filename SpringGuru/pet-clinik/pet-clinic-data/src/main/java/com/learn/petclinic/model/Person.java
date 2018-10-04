@@ -1,7 +1,10 @@
 package com.learn.petclinic.model;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Person extends BaseModel<Long> {
@@ -9,6 +12,9 @@ public class Person extends BaseModel<Long> {
 	private String lastName;
 	@OneToOne
 	private Occupation occupation;
+
+	@OneToMany
+	private Set<Pet> pets = new HashSet<>();
 
 	public static Person create(Long id, String firstName, String lastName, Occupation occupation) {
 		Person person = new Person(firstName, lastName);
@@ -33,5 +39,9 @@ public class Person extends BaseModel<Long> {
 
 	public Occupation getOccupation() {
 		return occupation;
+	}
+
+	public Set<Pet> getPets() {
+		return pets;
 	}
 }
