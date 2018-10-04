@@ -2,6 +2,7 @@ package com.learn.petclinic.bootstrap;
 
 import com.learn.petclinic.model.Occupation;
 import com.learn.petclinic.model.Person;
+import com.learn.petclinic.model.Pet;
 import com.learn.petclinic.model.PetType;
 import com.learn.petclinic.repositories.MapPersonRepository;
 import com.learn.petclinic.repositories.MapPetTypeRepository;
@@ -10,6 +11,8 @@ import com.learn.petclinic.repositories.PetTypeRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -25,9 +28,10 @@ public class DataLoader implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		Short petTypeId = 0;
-		PetType dog = addPetType(++petTypeId, "DOG");
-		PetType cat = addPetType(++petTypeId, "CAT");
+		PetType dog = addPetType( "DOG");
+		PetType cat = addPetType("CAT");
+
+
 
 		Long occupationId = 0L;
 		Occupation vet = addOccupation(++occupationId, Occupation.vet);
@@ -35,19 +39,34 @@ public class DataLoader implements CommandLineRunner {
 
 		Long personId = 0L;
 		//owners
-		Person michael = addPerson(++personId, "Michael", "Weston", owner);
-		Person fiona = addPerson(++personId, "Fiona", "Glenanne", owner);
+		Person michael = addPerson("Michael", "Weston", "address1", "city1", "123456", owner);
+		Person fiona = addPerson("Fiona", "Glenanne", "address2", "city2", "123456",owner);
 
 		//vets
-		Person sam = addPerson(++personId, "Sam", "Axe", vet);
-		Person jessie = addPerson(++personId, "Jessie", "Porter", vet);
+		Person sam = addPerson("Sam", "Axe", "address3", "city3", "123456",vet);
+		Person jessie = addPerson( "Jessie", "Porter", "address4", "city4", "123456",vet);
+
+
+
+		Pet pet1 = new Pet(dog, michael, LocalDate.parse("1999-12-31"), "dog1");
+		Pet pet2 = new Pet(cat, fiona, LocalDate.parse("1999-12-31"), "cat1");
+
+
+
+		personRepository.save(michael);
+		personRepository.save(fiona);
+		personRepository.save(sam);
+		personRepository.save(jessie);
 
 
 	}
 
-	private Person addPerson(Long id, String firstName, String lastName, Occupation occupation) {
-		Person person = Person.create(id, firstName, lastName, occupation);
-		personRepository.save(person);
+
+	private Person addPerson(String firstName, String lastName,
+			String address, String city, String phoneNumber,
+			Occupation occupation) {
+		Person person = new Person(firstName, lastName, address, city, phoneNumber, occupation);
+		//personRepository.save(person);
 
 		return person;
 	}
@@ -59,12 +78,8 @@ public class DataLoader implements CommandLineRunner {
 		return occupation;
 	}
 
-	private PetType addPetType(Short id, String name) {
+	private PetType addPetType(String name) {
 		PetType petType = new PetType(name);
-		petType.setId(id);
-
-		petTypeRepository.save(petType);
-
 		return petType;
 	}
 }

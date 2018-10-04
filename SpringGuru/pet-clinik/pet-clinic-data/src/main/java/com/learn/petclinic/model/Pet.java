@@ -11,11 +11,15 @@ public class Pet extends BaseModel<Long>{
 	@OneToOne
 	private Person owner;
 	private LocalDate birthDate;
+	private String name;
 
-	public Pet(PetType petType, Person owner, LocalDate birthDate) {
+	public Pet(PetType petType, Person owner, LocalDate birthDate, String name) {
 		this.petType = petType;
 		this.owner = owner;
 		this.birthDate = birthDate;
+		this.name = name;
+
+		owner.getPets().add(this);
 	}
 
 	public PetType getPetType() {
@@ -28,5 +32,9 @@ public class Pet extends BaseModel<Long>{
 
 	public LocalDate getBirthDate() {
 		return birthDate;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

@@ -11,9 +11,9 @@ import java.util.Optional;
 public class MapPetTypeRepository implements PetTypeRepository {
 	public static final String ID = "mapPetTypeRepository";
 
-	private MapRepository<PetType, Short> mapRepository;
-	public MapPetTypeRepository(MapRepository<PetType, Short> mapRepository) {
-		this.mapRepository = mapRepository;
+	private MapRepository<PetType, Short> mapRepository = new MapRepository<>();
+	public MapPetTypeRepository() {
+
 	}
 	@Override public <S extends PetType> S save(S s) {
 		return mapRepository.save(s);

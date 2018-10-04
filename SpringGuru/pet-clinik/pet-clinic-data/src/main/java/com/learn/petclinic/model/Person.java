@@ -23,8 +23,10 @@ public class Person extends BaseModel<Long> {
 	@OneToMany
 	private Set<Pet> pets = new HashSet<>();
 
-	public static Person create(Long id, String firstName, String lastName, Occupation occupation) {
-		Person person = new Person(firstName, lastName);
+	public static Person create(Long id, String firstName, String lastName,
+			String address, String city, String phoneNumber,
+			Occupation occupation) {
+		Person person = new Person(firstName, lastName, address, city, phoneNumber);
 		person.id = id;
 		person.occupation = occupation;
 
@@ -34,6 +36,18 @@ public class Person extends BaseModel<Long> {
 	public Person(String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
+	}
+	public Person(String firstName, String lastName, String address, String city, String phoneNumber) {
+		this(firstName, lastName);
+		this.address = address;
+		this.city = city;
+		this.phoneNumber = phoneNumber;
+	}
+
+	public Person(String firstName, String lastName, String address, String city, String phoneNumber,
+			Occupation occupation) {
+		this(firstName, lastName, address, city, phoneNumber);
+		this.occupation = occupation;
 	}
 
 	public String getFirstName() {

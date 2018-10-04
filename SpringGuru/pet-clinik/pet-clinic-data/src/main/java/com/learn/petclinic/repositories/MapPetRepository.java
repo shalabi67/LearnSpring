@@ -1,6 +1,7 @@
 package com.learn.petclinic.repositories;
 
 import com.learn.petclinic.model.Pet;
+import com.learn.petclinic.model.PetType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +12,18 @@ import java.util.Optional;
 public class MapPetRepository implements PetRepository {
 	public static final String ID = "mapPetRepository";
 
-	private MapRepository<Pet, Long> mapRepository;
-	public MapPetRepository(MapRepository<Pet, Long> mapRepository) {
-		this.mapRepository = mapRepository;
+	private MapRepository<Pet, Long> mapRepository = new MapRepository<>();
+	private PetTypeRepository petTypeRepository;
+	public MapPetRepository(@Qualifier(MapPetTypeRepository.ID)PetTypeRepository petTypeRepository) {
+		this.petTypeRepository = petTypeRepository;
 	}
 	@Override public <S extends Pet> S save(S s) {
+		if(s == null)
+			return null;
+		PetType petType = s.getPetType();
+		if(petType != null && petType.getId() == null) {
+			petTypeRepository.save(petType);
+		}
 		return mapRepository.save(s);
 	}
 
