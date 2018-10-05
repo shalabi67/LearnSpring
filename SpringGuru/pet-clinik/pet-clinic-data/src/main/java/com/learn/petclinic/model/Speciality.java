@@ -9,6 +9,7 @@ public class Speciality extends BaseModel<Short> {
 	public Speciality() {
 
 	}
+
 	public Speciality(String name) {
 		this.name = name;
 	}

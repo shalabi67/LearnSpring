@@ -2,6 +2,7 @@ package com.learn.petclinic.repositories;
 
 import com.learn.petclinic.model.Person;
 import com.learn.petclinic.model.Pet;
+import com.learn.petclinic.model.Speciality;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,11 @@ public class MapPersonRepository implements PersonRepository {
 	private Map<String, Set<Person>> occupationMap = new HashMap<>();
 	private MapRepository<Person, Long> mapRepository = new MapRepository<>();
 	private PetRepository mapPetRepository;
-	public MapPersonRepository(@Qualifier(MapPetRepository.ID) PetRepository mapPetRepository) {
+	private SpecialityRepository mapSpecialityRepository;
+	public MapPersonRepository(@Qualifier(MapPetRepository.ID) PetRepository mapPetRepository,
+			@Qualifier(MapSpecialityRepository.ID) MapSpecialityRepository mapSpecialityRepository) {
 		this.mapPetRepository = mapPetRepository;
+		this.mapSpecialityRepository = mapSpecialityRepository;
 	}
 	@Override public <S extends Person> S save(S s) {
 		if(s == null)
@@ -29,6 +33,12 @@ public class MapPersonRepository implements PersonRepository {
 		if(pets != null && !pets.isEmpty()) {
 			pets.forEach(pet -> mapPetRepository.save(pet));
 		}
+
+		Set<Speciality> specialities = s.getSpecialities();
+		if(specialities == null && !specialities.isEmpty()) {
+			specialities.forEach(speciality -> mapSpecialityRepository.save(speciality));
+		}
+
 		if(s instanceof Person) {
 			addPerson(s);
 		}

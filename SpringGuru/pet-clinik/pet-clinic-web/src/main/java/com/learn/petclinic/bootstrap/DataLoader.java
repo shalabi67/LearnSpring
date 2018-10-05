@@ -4,10 +4,9 @@ import com.learn.petclinic.model.Occupation;
 import com.learn.petclinic.model.Person;
 import com.learn.petclinic.model.Pet;
 import com.learn.petclinic.model.PetType;
+import com.learn.petclinic.model.Speciality;
 import com.learn.petclinic.repositories.MapPersonRepository;
-import com.learn.petclinic.repositories.MapPetTypeRepository;
 import com.learn.petclinic.repositories.PersonRepository;
-import com.learn.petclinic.repositories.PetTypeRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -18,20 +17,26 @@ import java.time.LocalDate;
 public class DataLoader implements CommandLineRunner {
 
 	private PersonRepository personRepository;
-	private PetTypeRepository petTypeRepository;
 
-	public DataLoader(@Qualifier(MapPersonRepository.ID)PersonRepository personRepository,
-			@Qualifier(MapPetTypeRepository.ID)PetTypeRepository petTypeRepository) {
+	public DataLoader(@Qualifier(MapPersonRepository.ID)PersonRepository personRepository) {
 		this.personRepository = personRepository;
-		this.petTypeRepository = petTypeRepository;
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
+		//TODO: we do not load this if we get data from database. see 132 class.
+		loadData();
+
+
+	}
+
+	private void loadData() {
 		PetType dog = addPetType( "DOG");
 		PetType cat = addPetType("CAT");
 
-
+		Speciality radiology = new Speciality("radiology");
+		Speciality surgery = new Speciality("surgery");
+		Speciality dentistry = new Speciality("dentistry");
 
 		Long occupationId = 0L;
 		Occupation vet = addOccupation(++occupationId, Occupation.vet);
@@ -45,22 +50,18 @@ public class DataLoader implements CommandLineRunner {
 		//vets
 		Person sam = addPerson("Sam", "Axe", "address3", "city3", "123456",vet);
 		Person jessie = addPerson( "Jessie", "Porter", "address4", "city4", "123456",vet);
-
-
+		sam.getSpecialities().add(radiology);
+		sam.getSpecialities().add(surgery);
+		jessie.getSpecialities().add(dentistry);
 
 		Pet pet1 = new Pet(dog, michael, LocalDate.parse("1999-12-31"), "dog1");
 		Pet pet2 = new Pet(cat, fiona, LocalDate.parse("1999-12-31"), "cat1");
-
-
 
 		personRepository.save(michael);
 		personRepository.save(fiona);
 		personRepository.save(sam);
 		personRepository.save(jessie);
-
-
 	}
-
 
 	private Person addPerson(String firstName, String lastName,
 			String address, String city, String phoneNumber,
