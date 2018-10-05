@@ -1,11 +1,40 @@
 <!DOCTYPE html>
 <html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
 >
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
 </head>
 <body>
-    <h1>My Recipes</h1>
+    <h2>My Recipes</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Description</th>
+            <th>Prepare Time</th>
+            <th>Cook Time</th>
+            <th>servings</th>
+            <th>Source</th>
+            <th>Url</th>
+            <th>Directions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--/*@thymesVar id="recipe" type="com.learn.spring.recipe.models.Recipe"*/-->
+        <!--/*@thymesVar id="recipes" type="java.util.Set"*/-->
+        <tr th:each="recipe : ${recipes}">
+            <td th:text="${recipe.id}">1</td>
+            <td th:text="${recipe.description}">recipe1</td>
+            <td th:text="${recipe.prepareTime}">30 min</td>
+            <td th:text="${recipe.cookTime}">10 min</td>
+            <td th:text="${recipe.servings}">3-4</td>
+            <td th:text="${recipe.source}">Amanda</td>
+            <td th:text="${recipe.url}">Amanda</td>
+            <td th:text="${recipe.directions}">Amanda</td>
+        </tr>
+        </tbody>
+    </table>
 </body>
 </html>

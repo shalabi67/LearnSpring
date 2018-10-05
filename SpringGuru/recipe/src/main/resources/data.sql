@@ -10,3 +10,5 @@ INSERT INTO unit_of_measurement (name) VALUES ('Ounce');
 INSERT INTO unit_of_measurement (name) VALUES ('Each');
 INSERT INTO unit_of_measurement (name) VALUES ('Dash');
 INSERT INTO unit_of_measurement (name) VALUES ('Pint');
+INSERT INTO unit_of_measurement (name) VALUES ('Clove');
+INSERT INTO unit_of_measurement (name) VALUES ('Pound');

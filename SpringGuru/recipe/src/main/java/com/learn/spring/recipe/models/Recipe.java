@@ -1,5 +1,7 @@
 package com.learn.spring.recipe.models;
 
+import com.learn.spring.recipe.models.mutable.MutableNote;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -44,6 +46,22 @@ public class Recipe {
 			joinColumns = @JoinColumn(name ="recipe_id"),
 			inverseJoinColumns = @JoinColumn(name = "category_id"))
 	private Set<Category> categories = new HashSet<>();
+
+	public Recipe() {
+	}
+	public Recipe(String description, Integer prepareTime, Integer cookTime, Integer servings, String source,
+			String url, String directions, MutableNote note, Difficulty difficulty) {
+		this.description = description;
+		this.prepareTime = prepareTime;
+		this.cookTime = cookTime;
+		this.servings = servings;
+		this.source = source;
+		this.url = url;
+		this.directions = directions;
+		this.note = note;
+		note.setRecipe(this);
+		this.difficulty = difficulty;
+	}
 
 	public Long getId() {
 		return id;

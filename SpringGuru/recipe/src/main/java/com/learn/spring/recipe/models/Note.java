@@ -11,11 +11,18 @@ import javax.persistence.OneToOne;
 public class Note {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	protected Long id;
 	@OneToOne
-	private Recipe recipe;
+	protected Recipe recipe;
 	@Lob
-	private String recipeNote;
+	protected String recipeNote;
+
+	public Note() {
+
+	}
+	public Note(String recipeNote) {
+		this.recipeNote = recipeNote;
+	}
 
 	public Long getId() {
 		return id;
