@@ -19,6 +19,8 @@ public class MapPersonRepository implements PersonRepository {
 	//map of occupation and persons
 	private Map<String, Set<Person>> occupationMap = new HashMap<>();
 	private MapRepository<Person, Long> mapRepository = new MapRepository<>();
+	private Map<String, Person> mapByLastName = new HashMap<>();
+
 	private PetRepository mapPetRepository;
 	private SpecialityRepository mapSpecialityRepository;
 	public MapPersonRepository(@Qualifier(MapPetRepository.ID) PetRepository mapPetRepository,
@@ -42,6 +44,7 @@ public class MapPersonRepository implements PersonRepository {
 		if(s instanceof Person) {
 			addPerson(s);
 		}
+		mapByLastName.put(s.getLastName(), s);
 		return mapRepository.save(s);
 	}
 
@@ -94,5 +97,11 @@ public class MapPersonRepository implements PersonRepository {
 
 	@Override public Iterable<Person> findAllByOccupation_Name(String occupationName) {
 		return occupationMap.getOrDefault(occupationName, new HashSet<Person>());
+	}
+
+	@Override public Optional<Person> findByLastName(String lastName) {
+		Person person = mapByLastName.getOrDefault(lastName, null);
+
+		return Optional.ofNullable(person);
 	}
 }

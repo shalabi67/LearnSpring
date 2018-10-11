@@ -1,12 +1,19 @@
 package com.learn.petclinic.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "persons")
 public class Person extends BaseModel<Long> {
 	private String firstName;
 	private String lastName;
@@ -17,10 +24,14 @@ public class Person extends BaseModel<Long> {
 	@OneToOne
 	private Occupation occupation;
 
-	@OneToMany
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "person_specialities",
+		joinColumns = @JoinColumn(name="person_id"),
+		inverseJoinColumns = @JoinColumn(name="speciality_id")
+	)
 	private Set<Speciality> specialities = new HashSet<>();
 
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
 	private Set<Pet> pets = new HashSet<>();
 
 	public static Person create(Long id, String firstName, String lastName,
@@ -31,6 +42,10 @@ public class Person extends BaseModel<Long> {
 		person.occupation = occupation;
 
 		return person;
+	}
+
+	public Person() {
+
 	}
 
 	public Person(String firstName, String lastName) {

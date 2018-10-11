@@ -5,9 +5,10 @@ import com.learn.petclinic.model.Person;
 import com.learn.petclinic.model.Pet;
 import com.learn.petclinic.model.PetType;
 import com.learn.petclinic.model.Speciality;
-import com.learn.petclinic.repositories.MapPersonRepository;
+import com.learn.petclinic.repositories.OccupationRepository;
 import com.learn.petclinic.repositories.PersonRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.learn.petclinic.repositories.SpecialityRepository;
+import com.learn.petclinic.repositories.factory.RepositoryFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +18,13 @@ import java.time.LocalDate;
 public class DataLoader implements CommandLineRunner {
 
 	private PersonRepository personRepository;
+	private OccupationRepository occupationRepository;
+	private SpecialityRepository specialityRepository;
 
-	public DataLoader(@Qualifier(MapPersonRepository.ID)PersonRepository personRepository) {
-		this.personRepository = personRepository;
+	public DataLoader(RepositoryFactory repositoryFactory) {
+		this.personRepository = repositoryFactory.getRepositoryContainer().getPersonRepository();
+		this.occupationRepository = repositoryFactory.getRepositoryContainer().getOccupationRepository();
+		this.specialityRepository = repositoryFactory.getRepositoryContainer().getSpecialityRepository();
 	}
 
 	@Override
@@ -35,12 +40,17 @@ public class DataLoader implements CommandLineRunner {
 		PetType cat = addPetType("CAT");
 
 		Speciality radiology = new Speciality("radiology");
+		radiology = specialityRepository.save(radiology);
 		Speciality surgery = new Speciality("surgery");
+		surgery = specialityRepository.save(surgery);
 		Speciality dentistry = new Speciality("dentistry");
+		dentistry = specialityRepository.save(dentistry);
 
 		Long occupationId = 0L;
 		Occupation vet = addOccupation(++occupationId, Occupation.vet);
+		vet = occupationRepository.save(vet);
 		Occupation owner = addOccupation(++occupationId, Occupation.owner);
+		owner = occupationRepository.save(owner);
 
 		Long personId = 0L;
 		//owners
@@ -56,6 +66,9 @@ public class DataLoader implements CommandLineRunner {
 
 		Pet pet1 = new Pet(dog, michael, LocalDate.parse("1999-12-31"), "dog1");
 		Pet pet2 = new Pet(cat, fiona, LocalDate.parse("1999-12-31"), "cat1");
+
+		michael.getPets().add(pet1);
+		fiona.getPets().add(pet2);
 
 		personRepository.save(michael);
 		personRepository.save(fiona);
@@ -74,7 +87,7 @@ public class DataLoader implements CommandLineRunner {
 
 	private Occupation addOccupation(Long id, String name) {
 		Occupation occupation = new Occupation(name);
-		occupation.setId(id);
+		//occupation.setId(id);
 
 		return occupation;
 	}

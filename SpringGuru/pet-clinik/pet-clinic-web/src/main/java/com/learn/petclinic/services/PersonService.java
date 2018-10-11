@@ -2,9 +2,8 @@ package com.learn.petclinic.services;
 
 import com.learn.petclinic.model.Occupation;
 import com.learn.petclinic.model.Person;
-import com.learn.petclinic.repositories.MapPersonRepository;
 import com.learn.petclinic.repositories.PersonRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.learn.petclinic.repositories.factory.RepositoryFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -15,8 +14,8 @@ public class PersonService {
 
 	private PersonRepository personRepository;
 
-	public PersonService(@Qualifier(MapPersonRepository.ID)PersonRepository personRepository) {
-		this.personRepository = personRepository;
+	public PersonService(RepositoryFactory repositoryFactory) {
+		this.personRepository = repositoryFactory.getRepositoryContainer().getPersonRepository();
 	}
 
 	public Set<Person> getOwners() {
