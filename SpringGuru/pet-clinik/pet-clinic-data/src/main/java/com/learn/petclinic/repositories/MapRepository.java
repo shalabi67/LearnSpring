@@ -20,6 +20,7 @@ public class MapRepository<T extends BaseModel<ID>, ID> implements CrudRepositor
 		if(id == null) {
 			++identity;
 			id = (ID)identity;
+			s.setId(id);
 		}
 		repositoryMap.put(id, s);
 

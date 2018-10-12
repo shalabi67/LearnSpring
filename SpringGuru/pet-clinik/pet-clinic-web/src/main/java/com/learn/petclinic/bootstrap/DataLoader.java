@@ -5,6 +5,7 @@ import com.learn.petclinic.model.Person;
 import com.learn.petclinic.model.Pet;
 import com.learn.petclinic.model.PetType;
 import com.learn.petclinic.model.Speciality;
+import com.learn.petclinic.model.Visit;
 import com.learn.petclinic.repositories.OccupationRepository;
 import com.learn.petclinic.repositories.PersonRepository;
 import com.learn.petclinic.repositories.SpecialityRepository;
@@ -67,8 +68,11 @@ public class DataLoader implements CommandLineRunner {
 		Pet pet1 = new Pet(dog, michael, LocalDate.parse("1999-12-31"), "dog1");
 		Pet pet2 = new Pet(cat, fiona, LocalDate.parse("1999-12-31"), "cat1");
 
-		michael.getPets().add(pet1);
-		fiona.getPets().add(pet2);
+		//michael.getPets().add(pet1);
+		//fiona.getPets().add(pet2);
+
+		Visit dogVisit = new Visit(pet1, LocalDate.now(), "dog1 visit");
+		Visit catVisit = new Visit(pet2, LocalDate.now(), "cat1 visit");
 
 		personRepository.save(michael);
 		personRepository.save(fiona);

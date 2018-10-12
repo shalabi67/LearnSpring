@@ -22,6 +22,7 @@ public class Visit extends BaseModel<Long>{
 	}
 	public Visit(Pet pet, LocalDate visitDate, String description) {
 		this.pet = pet;
+		pet.getVisits().add(this);
 		this.visitDate = visitDate;
 		this.description = description;
 	}
