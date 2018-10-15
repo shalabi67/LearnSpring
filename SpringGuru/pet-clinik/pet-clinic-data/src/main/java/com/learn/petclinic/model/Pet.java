@@ -1,5 +1,8 @@
 package com.learn.petclinic.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -10,6 +13,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name="pets")
 public class Pet extends BaseModel<Long>{
@@ -26,9 +31,6 @@ public class Pet extends BaseModel<Long>{
 	private LocalDate birthDate;
 	private String name;
 
-	public Pet() {
-
-	}
 	public Pet(PetType petType, Person owner, LocalDate birthDate, String name) {
 		this.petType = petType;
 		this.owner = owner;
@@ -38,23 +40,4 @@ public class Pet extends BaseModel<Long>{
 		owner.getPets().add(this);
 	}
 
-	public PetType getPetType() {
-		return petType;
-	}
-
-	public Person getOwner() {
-		return owner;
-	}
-
-	public LocalDate getBirthDate() {
-		return birthDate;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Set<Visit> getVisits() {
-		return visits;
-	}
 }

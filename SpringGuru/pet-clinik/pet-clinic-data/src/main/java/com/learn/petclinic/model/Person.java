@@ -1,5 +1,8 @@
 package com.learn.petclinic.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,6 +15,8 @@ import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "persons")
 public class Person extends BaseModel<Long> {
@@ -44,10 +49,6 @@ public class Person extends BaseModel<Long> {
 		return person;
 	}
 
-	public Person() {
-
-	}
-
 	public Person(String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -65,35 +66,4 @@ public class Person extends BaseModel<Long> {
 		this.occupation = occupation;
 	}
 
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	public Occupation getOccupation() {
-		return occupation;
-	}
-
-	public Set<Pet> getPets() {
-		return pets;
-	}
-
-	public Set<Speciality> getSpecialities() {
-		return specialities;
-	}
 }
