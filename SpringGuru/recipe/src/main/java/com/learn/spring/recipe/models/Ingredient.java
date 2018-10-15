@@ -1,5 +1,7 @@
 package com.learn.spring.recipe.models;
 
+import lombok.Getter;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -10,6 +12,7 @@ import javax.persistence.OneToOne;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+@Getter
 @Entity
 public class Ingredient {
 	@Id
@@ -45,23 +48,4 @@ public class Ingredient {
 	@OneToOne(fetch = FetchType.EAGER)
 	private UnitOfMeasurement unitOfMeasurement;
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public Recipe getRecipe() {
-		return recipe;
-	}
-
-	public UnitOfMeasurement getUnitOfMeasurement() {
-		return unitOfMeasurement;
-	}
 }

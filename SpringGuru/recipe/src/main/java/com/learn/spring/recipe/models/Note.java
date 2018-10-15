@@ -1,5 +1,7 @@
 package com.learn.spring.recipe.models;
 
+import lombok.Getter;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -7,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 
+@Getter
 @Entity
 public class Note {
 	@Id
@@ -24,15 +27,4 @@ public class Note {
 		this.recipeNote = recipeNote;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public Recipe getRecipe() {
-		return recipe;
-	}
-
-	public String getRecipeNote() {
-		return recipeNote;
-	}
 }

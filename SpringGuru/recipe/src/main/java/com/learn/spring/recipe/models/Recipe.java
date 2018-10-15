@@ -1,6 +1,7 @@
 package com.learn.spring.recipe.models;
 
 import com.learn.spring.recipe.models.mutable.MutableNote;
+import lombok.Getter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -18,6 +19,8 @@ import javax.persistence.OneToOne;
 import java.util.HashSet;
 import java.util.Set;
 
+
+@Getter
 @Entity
 public class Recipe {
 	@Id
@@ -63,55 +66,4 @@ public class Recipe {
 		this.difficulty = difficulty;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public Integer getPrepareTime() {
-		return prepareTime;
-	}
-
-	public Integer getCookTime() {
-		return cookTime;
-	}
-
-	public Integer getServings() {
-		return servings;
-	}
-
-	public String getSource() {
-		return source;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public String getDirections() {
-		return directions;
-	}
-
-	public Byte[] getImage() {
-		return image;
-	}
-
-	public Note getNote() {
-		return note;
-	}
-
-	public Set<Ingredient> getIngredients() {
-		return ingredients;
-	}
-
-	public Difficulty getDifficulty() {
-		return difficulty;
-	}
-
-	public Set<Category> getCategories() {
-		return categories;
-	}
 }

@@ -7,11 +7,13 @@ import com.learn.spring.recipe.models.mutable.MutableNote;
 import com.learn.spring.recipe.repositories.CategoryRepository;
 import com.learn.spring.recipe.repositories.RecipeRepository;
 import com.learn.spring.recipe.repositories.UnitOfMeasurementRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+@Slf4j
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -27,7 +29,9 @@ public class DataInitializer implements CommandLineRunner {
 
 
 	}
-	@Override public void run(String... args) throws Exception {
+	@Override
+	public void run(String... args) throws Exception {
+		log.debug("creating spicy Chicken recipe.");
 		Recipe spicyGrilledChickenTacos = createRecipe("Spicy Grilled Chicken Tacos Recipe",
 				"Spicy grilled chicken tacos! Quick marinade, then grill. Ready in about 30 minutes. Great for a quick weeknight dinner, backyard cookouts, and tailgate parties.",
 				20, 15, 4,
@@ -35,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
 				"",
 				Difficulty.Easy
 				);
-		spicyChecken = getSpicyCheckenIngredient(spicyGrilledChickenTacos);
+		spicyChicken = getSpicyChickenIngredient(spicyGrilledChickenTacos);
 		recipeRepository.save(spicyGrilledChickenTacos);
 	}
 
@@ -51,8 +55,8 @@ public class DataInitializer implements CommandLineRunner {
 
 	}
 
-	private Ingredient[] getSpicyCheckenIngredient(Recipe recipe) {
-		Ingredient[] spicyChecken = {
+	private Ingredient[] getSpicyChickenIngredient(Recipe recipe) {
+		Ingredient[] spicyChicken = {
 				new Ingredient(recipe, "ancho chili powder", new BigDecimal(2), unitOfMeasurementRepository.findByName("Teaspoon")),
 				new Ingredient(recipe, "dried oregano", new BigDecimal(1), unitOfMeasurementRepository.findByName("Teaspoon")),
 				new Ingredient(recipe, "dried cumin", new BigDecimal(1), unitOfMeasurementRepository.findByName("Teaspoon")),
@@ -68,8 +72,8 @@ public class DataInitializer implements CommandLineRunner {
 				new Ingredient(recipe, "skinless, boneless chicken thighs", new BigDecimal(1.25), unitOfMeasurementRepository.findByName("Teaspoon"))
 		};
 
-		return spicyChecken;
+		return spicyChicken;
 	}
-	private Ingredient[] spicyChecken;
+	private Ingredient[] spicyChicken;
 
 }
