@@ -7,11 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.learn.model.Author;
@@ -22,9 +18,10 @@ import com.learn.service.AuthorService;
 @RestController
 @RequestMapping(PathsConstants.authors)
 public class AuthorController {
+	//http://localhost:9099/api/authors
 	@Autowired
 	AuthorService authorService;
-	@JsonView(View.Summary.class)	
+	@JsonView(View.NoAddress.class)
 	@RequestMapping(value="", method=RequestMethod.GET)
 	public ResponseEntity<List<Author>> getAuthors(Pageable page) {  //?page=0&size=3
 		List<Author> authors = authorService.getAuthors(page);
@@ -35,6 +32,22 @@ public class AuthorController {
 		
 		return new ResponseEntity<List<Author>>(authors, HttpStatus.OK);
 		
+	}
+
+	//http://localhost:9099/api/authors/find?first_name=moh&post_code=10315
+	@JsonView(View.Summary.class)
+	@RequestMapping(value="/find", method=RequestMethod.GET)
+	public ResponseEntity<List<Author>> getAuthorsBy(
+			@RequestParam("first_name") String firstName,
+			@RequestParam("post_code") String postCode) {  //?fist_name=moh&post_code=10315
+		List<Author> authors = authorService.getAuthors(firstName, postCode);
+
+		if(authors.isEmpty()) {
+			return new ResponseEntity<List<Author>>(HttpStatus.NO_CONTENT);
+		}
+
+		return new ResponseEntity<List<Author>>(authors, HttpStatus.OK);
+
 	}
 	
 	@JsonView(View.Summary.class)

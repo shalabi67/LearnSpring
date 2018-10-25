@@ -9,7 +9,7 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
-public class Book {
+public class Book extends BasicEntity {
 	@JsonView(View.Summary.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)

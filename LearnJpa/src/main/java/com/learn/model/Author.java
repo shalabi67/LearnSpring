@@ -14,16 +14,16 @@ import javax.persistence.OneToOne;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
-public class Author {
-	@JsonView(View.Summary.class)
+public class Author extends BasicEntity {
+	@JsonView({View.Summary.class, View.NoAddress.class})
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long authorId;
-	
-	@JsonView(View.Summary.class)
+
+	@JsonView({View.Summary.class, View.NoAddress.class})
 	private String firstName;
-	
-	@JsonView(View.Summary.class)
+
+	@JsonView({View.Summary.class, View.NoAddress.class})
 	private String lastName;
 	
 	@OneToOne
