@@ -23,4 +23,8 @@ public class RecipeService {
 		log.debug("RecipeService::getRecipes had been called");
 		return recipeRepository.findAll();
 	}
+
+	public Recipe getRecipe(Long recipeId) {
+		return recipeRepository.findById(recipeId).orElseGet(null);
+	}
 }

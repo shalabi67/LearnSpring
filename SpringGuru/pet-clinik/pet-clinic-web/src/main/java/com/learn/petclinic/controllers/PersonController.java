@@ -7,14 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class PersonController {
-	private static final String OWNER_URL = "owners";
-	private static final String OWNER_BEGIN = "/" + PersonController.OWNER_URL;
-	private static final String VETS_URL = "vets";
-	private static final String VETS_BEGIN = "/" + PersonController.VETS_URL;
-	private static final String MODEL = "/index";
+	public static final String OWNER_URL = "owners";
+	public static final String OWNER_BEGIN = "/" + PersonController.OWNER_URL;
+	public static final String VETS_URL = "vets";
+	public static final String VETS_BEGIN = "/" + PersonController.VETS_URL;
+	public static final String MODEL = "/index";
 	private static final String HTML_EXT = ".html";
 	private static final String HTM_EXT = ".htm";
-	private static final String FIND = "/find";
+	public static final String FIND = "/find";
 
 	private PersonService personService;
 	public PersonController(PersonService personService) {
