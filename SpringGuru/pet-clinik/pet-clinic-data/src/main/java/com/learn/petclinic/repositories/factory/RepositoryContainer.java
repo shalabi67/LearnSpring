@@ -9,7 +9,7 @@ public class RepositoryContainer {
 	private OccupationRepository occupationRepository;
 	private SpecialityRepository specialityRepository;
 
-	protected RepositoryContainer(PersonRepository personRepository,
+	public RepositoryContainer(PersonRepository personRepository,
 			OccupationRepository occupationRepository,
 			SpecialityRepository specialityRepository) {
 		this.personRepository = personRepository;
