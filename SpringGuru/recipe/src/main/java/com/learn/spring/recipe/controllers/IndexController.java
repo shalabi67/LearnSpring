@@ -9,17 +9,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 @Controller
 public class IndexController {
+	public static final String VIEW = "index";
 
 	private RecipeService recipeService;
+
 
 	public IndexController(RecipeService recipeService) {
 		this.recipeService = recipeService;
 	}
 
-	@RequestMapping({"","/", "/index", "index.html", "index.htm"})
+	@RequestMapping({"","/", "/" + VIEW, VIEW + ".html", VIEW + ".htm"})
 	public String showMainPage(Model model) {
 		log.debug("IndexController::showMainPage had been called.");
 		model.addAttribute("recipes", recipeService.getRecipes());
-		return "index";
+		return VIEW;
 	}
 }
