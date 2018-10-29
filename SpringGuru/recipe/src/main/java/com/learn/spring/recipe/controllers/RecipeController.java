@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(RecipeController.URL)
 public class RecipeController {
 	static final String URL = "/recipe";
-	private static final String MODEL = "recipe";
+	public static final String MODEL = "recipe";
 	public static final String VIEW = URL + "/view";
 
 

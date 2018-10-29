@@ -1,5 +1,6 @@
 package com.learn.spring.recipe.bootstrap;
 
+import com.learn.spring.recipe.models.Category;
 import com.learn.spring.recipe.models.Difficulty;
 import com.learn.spring.recipe.models.Ingredient;
 import com.learn.spring.recipe.models.Recipe;
@@ -10,6 +11,7 @@ import com.learn.spring.recipe.repositories.UnitOfMeasurementRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -29,6 +31,7 @@ public class DataInitializer implements CommandLineRunner {
 
 
 	}
+	@Transactional
 	@Override
 	public void run(String... args) throws Exception {
 		log.debug("creating spicy Chicken recipe.");
@@ -40,7 +43,9 @@ public class DataInitializer implements CommandLineRunner {
 				Difficulty.Easy
 				);
 		spicyChicken = getSpicyChickenIngredient(spicyGrilledChickenTacos);
+		setCategories(spicyGrilledChickenTacos);
 		recipeRepository.save(spicyGrilledChickenTacos);
+
 	}
 
 	private Recipe createRecipe(String description, String note, Integer prepareTime, Integer cookTime,
@@ -53,6 +58,16 @@ public class DataInitializer implements CommandLineRunner {
 
 		return recipe;
 
+	}
+
+	private void setCategories(Recipe recipe) {
+		Category mexicanCategory = categoryRepository.findById(3L).get();
+		Category fastFoodCategory = categoryRepository.findById(4L).get();
+		mexicanCategory.getRecipes().add(recipe);
+		recipe.getCategories().add(mexicanCategory);
+
+		fastFoodCategory.getRecipes().add(recipe);
+		recipe.getCategories().add(fastFoodCategory);
 	}
 
 	private Ingredient[] getSpicyChickenIngredient(Recipe recipe) {

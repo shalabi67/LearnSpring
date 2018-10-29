@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -70,7 +71,8 @@ public class RecipeControllerTest {
 
 		mockMvc.perform(get(url))
 				.andExpect(status().isOk())
-				.andExpect(view().name(RecipeController.VIEW));
+				.andExpect(view().name(RecipeController.VIEW))
+				.andExpect(model().attributeExists(RecipeController.MODEL));
 	}
 
 }
