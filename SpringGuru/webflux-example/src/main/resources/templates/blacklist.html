@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Blacklist Page</title>
+</head>
+<body>
+    <table>
+        <thead>
+        <tr>
+            <th>item</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--/*@thymesVar id="blackList" type="com.learn.webfluxexample.data.Blacklist"*/-->
+        <tr th:remove="all">
+            <td th:text="${blackSet}">3</td>
+        </tr>
+        <tr th:remove="all">
+            <td th:text="${blackSet}">3</td>
+        </tr>
+        <tr th:each="blackSet : ${blackList.getBlackList()}">
+            <td th:text="${blackSet}">3</td>
+        </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
