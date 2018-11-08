@@ -27,4 +27,14 @@ public class RecipeService {
 	public Recipe getRecipe(Long recipeId) {
 		return recipeRepository.findById(recipeId).orElseGet(null);
 	}
+
+	public Recipe saveRecipe(Recipe recipe) {
+		if(recipe == null) {
+			return null;
+		}
+
+		Recipe newRecipe = recipeRepository.save(recipe);
+
+		return newRecipe;
+	}
 }
