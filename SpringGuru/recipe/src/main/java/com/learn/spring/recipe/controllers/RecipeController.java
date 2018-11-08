@@ -1,5 +1,7 @@
 package com.learn.spring.recipe.controllers;
 
+import com.learn.spring.recipe.controllers.models.RecipeAdapter;
+import com.learn.spring.recipe.controllers.models.RecipeUI;
 import com.learn.spring.recipe.models.Recipe;
 import com.learn.spring.recipe.models.mutable.MutableRecipe;
 import com.learn.spring.recipe.services.RecipeService;
@@ -47,7 +49,8 @@ public class RecipeController {
 	}
 
 	@RequestMapping(name = URL, method = RequestMethod.POST)
-	public String saveRecipe(@ModelAttribute MutableRecipe recipe) {
+	public String saveRecipe(@ModelAttribute RecipeUI recipeUI) {
+		Recipe recipe = RecipeAdapter.convert(recipeUI);
 		Recipe newRecipe = recipeService.saveRecipe(recipe);
 		String redirectURL = "redirect:" + VIEW;
 		if(recipe == null) {

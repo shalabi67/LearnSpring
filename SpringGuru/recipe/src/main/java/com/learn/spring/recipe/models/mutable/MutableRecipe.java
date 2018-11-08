@@ -6,8 +6,12 @@ import com.learn.spring.recipe.models.Ingredient;
 import com.learn.spring.recipe.models.Note;
 import com.learn.spring.recipe.models.Recipe;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Set;
 
+@Entity
+@Table(name="Recipe")
 public class MutableRecipe extends Recipe {
 	public MutableRecipe() {
 		note = new MutableNote("");
