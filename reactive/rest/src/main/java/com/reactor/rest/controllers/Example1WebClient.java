@@ -1,10 +1,13 @@
 package com.reactor.rest.controllers;
 
 import com.reactor.rest.models.Person;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,10 +21,44 @@ public class Example1WebClient {
                 .retrieve()
                 .bodyToFlux(Person.class);
 
-        List<Person> people = namesFlux
-                .collectList()
-                .block();
+        final List<Person> people = new ArrayList<>();
+        namesFlux
+                .log()
+                .subscribe(people::add);
+        /*
+        namesFlux
+                .log()
+                .subscribe(new Subscriber<Person>() {
+                    @Override
+                    public void onSubscribe(Subscription subscription) {
 
+                    }
+
+                    @Override
+                    public void onNext(Person person) {
+                        System.out.println(person.getFirstName());
+                        people.add(person);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+        */
+        sleep(500);
         people.forEach(person -> System.out.println(person.getFirstName() + "  " + person.getLastName()));
+    }
+    private static void sleep(long delay) {
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
