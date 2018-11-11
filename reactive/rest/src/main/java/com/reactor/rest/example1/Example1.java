@@ -1,4 +1,4 @@
-package com.reactor.rest.controllers;
+package com.reactor.rest.example1;
 
 import com.reactor.rest.models.Person;
 import org.springframework.web.bind.annotation.GetMapping;

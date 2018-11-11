@@ -1,4 +1,4 @@
-package com.reactor.rest.controllers;
+package com.reactor.rest.example1;
 
 import com.reactor.rest.models.Person;
 import org.reactivestreams.Subscriber;
@@ -22,16 +22,18 @@ public class Example1WebClient {
                 .bodyToFlux(Person.class);
 
         final List<Person> people = new ArrayList<>();
+
+        /*
         namesFlux
                 .log()
                 .subscribe(people::add);
-        /*
+        */
         namesFlux
                 .log()
                 .subscribe(new Subscriber<Person>() {
                     @Override
                     public void onSubscribe(Subscription subscription) {
-
+                        subscription.request(20);
                     }
 
                     @Override
@@ -42,15 +44,15 @@ public class Example1WebClient {
 
                     @Override
                     public void onError(Throwable throwable) {
-
+                        System.out.println(throwable.getMessage());
                     }
 
                     @Override
                     public void onComplete() {
-
+                        System.out.println("onComplete");
                     }
                 });
-        */
+
         sleep(500);
         people.forEach(person -> System.out.println(person.getFirstName() + "  " + person.getLastName()));
     }
