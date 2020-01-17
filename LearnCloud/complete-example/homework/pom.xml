@@ -11,5 +11,6 @@
 		<module>eureka</module>
 		<module>auth</module>
 		<module>gateway</module>
+		<module>customer-service</module>
 	</modules>
 </project>

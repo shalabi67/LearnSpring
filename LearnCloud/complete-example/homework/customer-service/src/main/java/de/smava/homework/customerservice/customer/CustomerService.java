@@ -23,8 +23,8 @@ public class CustomerService {
 
 
         try {
-            UserDTO user  = userClient.getUser(customer.getUserId());
-            if(user == null) {
+            ResponseEntity<UserDTO> userResponse  = userClient.getUser(customer.getUserId());
+            if(userResponse == null || userResponse.getStatusCode()!=HttpStatus.OK) {
                 return new ResponseEntity(HttpStatus.NOT_FOUND);
             }
         }catch(Exception e) {
