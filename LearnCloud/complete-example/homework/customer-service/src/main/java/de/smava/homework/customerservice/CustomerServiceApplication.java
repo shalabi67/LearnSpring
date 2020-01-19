@@ -7,7 +7,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+//@EnableOAuth2Sso
 @EnableFeignClients
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class CustomerServiceApplication {
 
     public static void main(String[] args) {

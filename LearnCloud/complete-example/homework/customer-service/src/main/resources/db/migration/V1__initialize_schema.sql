@@ -2,7 +2,7 @@
 
 
 CREATE TABLE IF NOT EXISTS `CUSTOMER` (
-	`id` bigint NOT NULL PRIMARY KEY,
+	`id` bigint  NOT NULL PRIMARY KEY auto_increment,
     `user_id` varchar(50) NOT NULL,
 	`first_name` varchar(50) not null,
 	`last_name` varchar(50) not null,

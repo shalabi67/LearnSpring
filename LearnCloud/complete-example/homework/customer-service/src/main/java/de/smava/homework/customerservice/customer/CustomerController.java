@@ -1,10 +1,7 @@
 package de.smava.homework.customerservice.customer;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(CustomerController.CUSTOMER_URL)
@@ -18,7 +15,9 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) {
-        return customerService.addCustomer(customer);
+    public ResponseEntity<Customer> addCustomer(
+            @RequestHeader(name = "Authorization") String token,
+            @RequestBody Customer customer) {
+        return customerService.addCustomer(token, customer);
     }
 }
