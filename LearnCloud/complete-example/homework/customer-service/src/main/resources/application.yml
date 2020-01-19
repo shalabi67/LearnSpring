@@ -69,8 +69,13 @@ spring:
       - PUBLIC
   main:
     allow-bean-definition-overriding: true
+
 logging:
   level:
     org:
       springframework:
         security: DEBUG
+
+feign:
+  hystrix:
+    enabled: false
