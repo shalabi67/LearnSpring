@@ -1,4 +1,4 @@
-package de.smava.homework.auth.config;
+package de.smava.webapp.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

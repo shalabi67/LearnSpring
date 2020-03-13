@@ -72,9 +72,8 @@ spring:
 
 logging:
   level:
-    org:
-      springframework:
-        security: DEBUG
+    root: DEBUG
+
 
 feign:
   hystrix:

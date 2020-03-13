@@ -1,0 +1,1667 @@
+= Spring Cloud Workshops
+
+In this document we will hold the prerequisites and assignment details for the course.
+
+== Prerequisites
+
+You have to have Git, Docker, Docker-Compose and Curl installed.
+
+=== GitHub
+
+Please fork https://github.com/spring-cloud-samples/config-repo the repository.
+
+=== Docker dependencies
+
+In this section you'll see what commands you should run to fetch the dependencies required during the workshops.
+
+==== ELK stack
+
+```
+$ git clone https://github.com/marcingrzejszczak/docker-elk
+$ cd docker-elk
+$ git checkout spring_cloud
+$ docker-compose build
+$ docker-compose up
+```
+
+once it's running, just stop it.
+
+==== Prometheus
+
+```
+$ git clone https://github.com/marcingrzejszczak/prometheus
+$ cd prometheus
+$ git checkout demo_sc_netflix
+$ docker-compose up
+# once it's running, just stop it
+# Try to run this script to ensure that Prometheus setup is updated
+$ ./scripts/run.sh
+```
+
+==== Rabbit & Zipkin
+
+Create a file called `docker-compose.yml` with the following entries
+
+```yml
+rabbitmq:
+  image: rabbitmq:management
+  ports:
+    - 5672:5672
+    - 15672:15672
+zipkin:
+    image: openzipkin/zipkin
+    environment:
+      - TRANSPORT_TYPE=http
+    ports:
+      - 9411:9411
+```
+
+and run the image
+
+```
+$ docker-compose up
+```
+
+once it's running, just stop it.
+
+=== Maven dependencies
+
+Go to https://start.spring.io and generate a project with the following dependencies
+
+* Web
+* Actuator
+* Spring Cloud Config Server
+* Spring Cloud Config Client
+* Spring Cloud Eureka Server
+* Spring Cloud Eureka Client
+* Spring Cloud Load Balancer
+* Spring Cloud Circuit Breaker Resilience4j
+* Spring Cloud OpenFeign
+* Spring Cloud Stream
+* Spring RabbitMQ
+* Spring Cloud Gateway
+* Spring Cloud Sleuth
+
+click `generate` (you will download a `demo.zip` project). Unzip the `demo.zip` project
+
+```
+$ unzip demo.zip 
+Archive:  demo.zip
+  inflating: pom.xml                 
+   creating: src/
+   creating: src/test/
+   ...
+   ...
+$ cd demo
+$ ./mvnw clean install
+# this will download all the necessary jars
+```
+
+=== JCE
+
+To use the encryption and decryption features you need the full-strength JCE installed in your JVM (it is not included by default). You can download the “Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files” from Oracle and follow the installation instructions (essentially, you need to replace the two policy files in the JRE `lib/security` directory with the ones that you downloaded). You can click https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html?printOnly=1[here] to download the file.
+
+== Before the workshop
+
+Run RabbitMq, ELK, Prometheus with Grafana and Zipkin.
+
+.ELK
+```
+$ git clone https://github.com/marcingrzejszczak/docker-elk
+$ cd docker-elk
+$ git checkout spring_cloud
+$ docker-compose build
+$ docker-compose up -d
+```
+
+.Prometheus and Grafana
+```
+$ git clone https://github.com/marcingrzejszczak/prometheus
+$ cd prometheus
+$ git checkout demo_sc_netflix
+$ ./scripts/run.sh
+```
+
+For Rabbit and Zipkin, run the created file called `docker-compose.yml` with the following entries
+
+.docker-compose.yml
+```yml
+rabbitmq:
+  image: rabbitmq:management
+  ports:
+    - 5672:5672
+    - 15672:15672
+zipkin:
+    image: openzipkin/zipkin
+    environment:
+      - TRANSPORT_TYPE=http
+    ports:
+      - 9411:9411
+```
+
+and run the image
+
+```
+$ docker-compose up -d
+```
+
+== Assignments
+
+The finished assignments are available https://github.com/marcingrzejszczak/spring-cloud-workshops[in this GitHub project]. Below in the solutions section you have parts of the assignments available as snippets.
+
+=== Assignment 1
+
+Externalizing configuration via Spring Cloud Config. In this lab, students will use the Project 
+Initializr (start.spring.io) to generate two projects - a Spring Cloud Config server and a 
+Spring Cloud Config client application. Students will create a simple Git repository where 
+the externalized configuration will be stored. During the exercise students will be able to 
+fetch those properties and refresh them at runtime.
+
+Assignment time (15 min)
+
+You should try to do it yourself, but if you're stuck, click here for <<solution-for-assignment-1>>.
+
+==== Steps
+
+* Generate a `config-server` project from start.spring.io (`config server`, `actuator` dependencies)
+** In `bootstrap.properties` set `encrypt.key="Secret Key"`
+** In `application.properties` 
+*** set the server port to 8888 
+*** Point the `spring.cloud.config.server.git.uri` to 
+`https://github.com/[your github account name]/config-repo`. 
+For me it would be `https://github.com/marcingrzejszczak/config-repo`
+* Generate a `config-client` project from start.spring.io (config client, web, actuator dependencies)
+** Set the `config-client`’s properties
+*** Set the spring application name to `foo`
+*** Set the server port to 9080
+*** Set the `management.endpoints.web.exposure.include` to `*`
+** Create a `@RestController` and `@RefreshScope` annotated classes. 
+*** It should have the `@Value(“${foo:-test}”)` String field injected. 
+*** Via `@GetMapping(“/foo”)` we will return the value of the field
+* Run the application
+** Send a request to `localhost:9080/foo` you should get `from foo props`
+* Run the application with `spring.profiles.active=dev`
+** Send a request to `localhost:9080/foo` you should get `from foo development`
+* In your forked repository, in the `foo-dev.yml` file change the `foo` property to `hello world`
+* Send a request to `localhost:9080/foo` you should *still* get `from foo development`
+* Send a `curl -X POST localhost:9080/actuator/refresh`
+* Send a request to `localhost:9080/foo` you should get `hello world`
+
+===== Bonus point
+
+* Using the Config's server `encrypt` endpoint, encrypt a text `mysecret`
+** Check the slides on how to do that
+** Let's assume you get back `1234` as encrypted `mysecret`
+* Store the encrypted text in `foo.yml` as key `bonus` prefixed with `{cipher}` string.
+** You will get sth like `bonus: {cipher}1234`
+* Add a controller to retrieve the `bonus` configuration property.
+* Curl that controller to get the value of `bonus`.
+
+=== Assignment 2
+
+Service to service communication with Spring Cloud. In this lab, students will use the Project Initializr(start.spring.io) to 
+generate a Spring Cloud Eureka server and two client applications. Students will need to implement a REST API, 
+make the applications register in Eureka and make the applications communicate with each other either via 
+a) RestTemplate 
+b) Feign.
+
+Assignment time (15 min)
+
+You should try to do it yourself, but if you're stuck, click here for <<solution-for-assignment-2>>.
+
+==== Steps
+
+* Generate a `eureka-server` project with Eureka Server dependency from start.spring.io
+** Set the properties
+*** `server.port` property to `8761`
+*** `eureka.instance.hostname property` to `localhost`
+*** `eureka.instance.leaseRenewalIntervalInSeconds` property to `1`
+*** `eureka.client.registerWithEureka` property to `false`
+*** `eureka.client.fetchRegistry` property to `false`
+*** `eureka.client.instanceInfoReplicationIntervalSeconds` property to `1` 
+*** `eureka.client.serviceUrl.defaultZone` property to `http://${eureka.instance.hostname}:${server.port}/eureka`
+* Generate a `loan-issuance` project with Actuator, Web, OpenFeign, LoadBalancer and Eureka Client dependency from start.spring.io
+** Set the properties
+*** `server.port` property to `9081`
+*** `spring.application.name` property to `loan-issuance`
+*** `eureka.instance.hostname` property to `localhost`
+*** `eureka.instance.leaseRenewalIntervalInSeconds` property to `1`
+*** `eureka.client.instanceInfoReplicationIntervalSeconds` property to `1`
+*** `eureka.client.registryFetchIntervalSeconds` property to `1`
+** Create a *load balanced* `RestTemplate` bean
+** Create a `@RestController` that
+*** For RestTemplate: on a GET `/resttemplate/loan/{id}/fraud` mapping will use load balanced rest template to call GET to `fraud-detection` service at the `/frauds` endpoint to return a list of strings
+*** For Feign: on a GET `/openfeign/loan/{id}/fraud` mapping will use a FraudClient interface to call GET to `fraud-detection` at the `/frauds` endpoint
+*** create the `FraudClient` interface that will use OpenFeign to call GET to the `fraud-detection` service at the `/frauds` endpoint 
+* Generate a `fraud-detection` project with Actuator, Web, Eureka Client dependency from start.spring.io
+** Set the properties
+*** `server.port` property to `9090`
+*** `spring.application.name` property to `fraud-detection`
+*** `eureka.instance.hostname` property to `localhost`
+*** `eureka.instance.leaseRenewalIntervalInSeconds` property to `1`
+*** `eureka.client.instanceInfoReplicationIntervalSeconds` property to `1`
+*** `eureka.client.registryFetchIntervalSeconds` property to `1`
+** Create a `@RestController` that
+*** on a GET `/frauds` mapping will return a list of potential frauds
+
+===== Bonus point
+
+* Do both RestTemplate and Feign client execution
+
+=== Assignment 3
+
+Circuit breaking, metrics aggregation and latency analysis with Spring Cloud. In this lab, students will either 
+a) Use the Micrometer project to create custom metrics in their Spring Cloud based applications, 
+generated via Spring Initialzr. 
+b) Use Spring Cloud Circuit Breaker to wrap the calls from one application to another. 
+c) Add Spring Cloud Sleuth to the classpath to see the latency analysis in the Zipkin project.
+
+Bonus:
+
+a) Via Resilience4j and Micrometer Prometheus integration we will be able to gather metrics in 
+Prometheus and display them in Grafana
+b) Perform all three subsections
+
+Assignment time (15 min)
+
+You should try to do it yourself, but if you're stuck, click here for <<solution-for-assignment-3>>.
+
+==== Steps
+
+* Reuse the existing `eureka-server`, `fraud-detection` and `loan-issuance` services
+* For `fraud-detection`
+** `pom.xml`
+*** For Zipkin task: add Zipkin starter `org.springframework.cloud:spring-cloud-starter-zipkin`
+*** For Micrometer task: add Micrometer Prometheus `io.micrometer:micrometer-registry-prometheus`
+** `application.yml`
+*** expose `health,metrics,prometheus` management endpoints via `management.endpoints.web.exposure.include`
+*** so as not to pollute the logs set` logging.level.com.netflix: ERROR`
+** `FraudDetectionController`
+*** change `System.out` logging to Slf4j
+**** `private static final Logger log = LoggerFactory.getLogger(FraudDetectionController.class);`
+*** For Micrometer task: Set a `Counter` field from `MeterRegistry` called `frauds_counter`
+*** For Micrometer task: Increment the `Counter` whenever a call to `/frauds` was done
+*** For Micrometer task: Create a `@GetMapping("/frauds/counter")` endpoint the will return the current state of the counter via the `count()` method
+* For `loan-issuance`
+** `pom.xml`
+*** For CircuitBreaker: add Spring Cloud CircuitBreaker Resilience4j integration `org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j`
+*** For Sleuth: add Zipkin starter `org.springframework.cloud:spring-cloud-starter-zipkin`
+*** For Micrometer: add Micrometer Prometheus `io.micrometer:micrometer-registry-prometheus`
+*** For Micrometer: add Resilience4j Micrometer `io.github.resilience4j:resilience4j-micrometer`
+** `application.yml`
+*** expose `health,metrics,prometheus` management endpoints via `management.endpoints.web.exposure.include`
+*** so as not to pollute the logs set `logging.level.com.netflix: ERROR`
+** `LoanIssuanceController`
+*** change `System.out` logging to `Slf4j`
+*** `private static final Logger log = LoggerFactory.getLogger(LoanIssuanceController.class);`
+*** For CircuitBreaker
+**** Inject a `CircuitBreakerFactory` factory
+**** Wrap external calls in circuits like this `factory.create(“name”).run(() -> …)`
+**** Add a GET `/missing` endpoint to call a missing endpoint
+***** e.g. `http://fraud-detection/missing` 
+***** wrap it with fallback `factory.create(“name”).run(() -> …, throwable -> Arrays.asList(“fixed”, “value”))`
+** Add Resilience4j configuration
+```java
+@Bean
+public Customizer<Resilience4JCircuitBreakerFactory> defaultCustomizer() {
+	return factory -> factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
+			.circuitBreakerConfig(CircuitBreakerConfig.custom()
+					.minimumNumberOfCalls(5).build())
+			.build());
+}
+```
+* For Micrometer / CircuitBreaker with Grafana
+** Open Grafana (localhost:3000) and create a new dashboard
+*** Press `+`
+*** Add Query
+**** Enter a PromQL: `frauds_counter_total`
+**** Save (save icon)
+*** Refresh dashboard every 5 seconds
+*** Add a new panel (right top corner with a + icon)
+**** add query
+**** Enter a PromQL: `resilience4j_circuitbreaker_state`
+* Send some test requests
+```
+$ curl --fail localhost:9081/openfeign/loan/1/fraud
+$ curl --fail localhost:9081/resttemplate/loan/1/fraud
+```
+** Check the metrics
+```
+$ curl --fail localhost:9081/actuator/metrics
+```
+** For CircuitBreaker: check the metrics
+```
+$ curl --fail localhost:9081/actuator/prometheus
+```
+** Check the entries in Grafana
+* For Sleuth
+** Go to Zipkin (localhost:9411)
+*** Click on the trace of loan issuance to fraud detection call
+*** Analyse the spans
+*** click on the Dependencies icon (to the left)
+** Send `10` requests to the `/missing` endpoint
+*** Curl 10 requests
+```
+$ for run in {1..10}; do curl localhost:9081/missing; done
+```
+* For CicruitBreaker
+** Check Grafana Again
+*** see that one circuit is open `(job="test-app",name="missing",state="open")`
+
+==== Bonus point
+
+Add logback integration with ELK
+
+* Log in to Kibana (http://localhost:5601)
+** username and password: `elastic` / `changeme`
+* `fraud-detection` and `loan-issuance`
+** Add a `logback-spring.xml` (assumes ELK running on port 5000)
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+    <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5000</destination>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <pattern>
+                    <pattern>
+                        {
+                        "severity": "%level",
+                        "service": "${springAppName:-}",
+                        "trace": "%X{X-B3-TraceId:-}",
+                        "span": "%X{X-B3-SpanId:-}",
+                        "parent": "%X{X-B3-ParentSpanId:-}",
+                        "exportable": "%X{X-Span-Export:-}",
+                        "pid": "${PID:-}",
+                        "thread": "%thread",
+                        "class": "%logger{40}",
+                        "rest": "%message"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <root level="info">
+        <appender-ref ref="stash" />
+    </root>
+</configuration>
+```
+** Update `pom.xml` with logback dependencies
+```xml
+<dependency>
+	<groupId>net.logstash.logback</groupId>
+	<artifactId>logstash-logback-encoder</artifactId>
+	<version>6.3</version>
+</dependency>
+<dependency>
+	<groupId>ch.qos.logback</groupId>
+	<artifactId>logback-classic</artifactId>
+</dependency>
+```
+* Perform a request to loan issuance
+```
+$ curl --fail localhost:9081/resttemplate/loan/1/fraud
+```
+* In Kibana check the icon called `Discover`
+** From the `Available Fields` pick `time`, `trace`, `span`, `severity`, `service`, `rest`
+** Order by descending in time
+* Try doing all three subsections
+
+=== Assignment 4
+
+API gateway and messaging. In this lab, students will either 
+a) Generate two Spring Cloud Stream applications that will talk to each other over Spring Cloud Stream with RabbitMQ. The first one will also have an HTTP API to trigger it via the command line. 
+b) Create a Spring Cloud Gateway application to route the traffic to an external website.
+
+Assignment time (20 min)
+
+You should try to do it yourself, but if you're stuck, click here for <<solution-for-assignment-4>>.
+
+==== Bonus point
+
+Try doing both the gateway and stream apps. Upon receiving the message you can log it and then send a request to the gateway. That way you'll bind those applications together.
+
+==== Steps
+
+* Reuse the existing `eureka-server`, `fraud-detection`, `loan-issuance` and `proxy` services
+* For `fraud-detection`
+** `pom.xml`
+*** add Spring Cloud Stream starter `org.springframework.cloud:spring-cloud-stream`
+*** add Spring Cloud Stream Rabbit Binder `org.springframework.cloud:spring-cloud-stream-binder-rabbit`
+** `application.yml`
+*** set the `destination` to `frauds` of the `frauds-in-0` channel via the `spring.cloud.stream.bindings.frauds-in-0.destination: frauds`
+** `FraudDetectionApplication`
+*** create a `@LoadBalanced` `RestTemplate` bean
+*** create a `@Bean` with name `frauds` returning `Consumer<String>` that 
+**** will print out a message's body
+**** will send a request to `proxy`’s `httpbin/uuid` endpoint
+**** when response is received, will replace `\n` with `` (e.g. `response.replace("\n", "")`)
+* For `loan-issuance`
+** `pom.xml`
+*** add Spring Cloud Stream starter `org.springframework.cloud:spring-cloud-stream`
+*** add Spring Cloud Stream Rabbit Binder `org.springframework.cloud:spring-cloud-stream-binder-rabbit`
+** `application.yml`
+*** set `spring.cloud.stream.source` to `frauds`
+*** set the `destination` to `frauds` of the `frauds-out-0` channel via the `spring.cloud.stream.bindings.frauds-out-0.destination: frauds`
+** `LoanIssuanceController`
+*** inject the `StreamBridge` bean
+*** create a POST endpoint `/stream` that will accept a `@RequestBody` of type `String` as a method parameter and call the `StreamBridge`’s `send` method with `frauds-out-0` binding argument and that body as the second argument
+* Generate a `proxy` project with Actuator, Eureka Client, Gateway dependency from start.spring.io
+** either in code or YAML create a route that
+*** for path `/httpbin/`
+*** will `strip prefix` with index `1`
+*** and will `redirect` to URI `http://httpbin.org`
+** `application.yml`
+*** make it run at port 9060
+*** set the spring application name to `proxy`
+* Send a request to `loan-issuance`
+```
+$ curl --fail -X POST http://localhost:9081/stream --data '{"HELLO":"WORLD"}' -H Content-Type:application/json
+```
+** You should get back the generated `UUID`
+```
+Got response from the proxy [{  "uuid": "96483798-40bc-47d0-9fd4-d7e9acc3e9d3"}]
+```
+
+==== Bonus point
+
+* Add micrometer / prometheus to the proxy (remember about whitelisting the prometheus endpoint)
+** Check the proxy metrics in Grafana
+* Add Spring Cloud Sleuth with Zipkin to all of the applications
+** Check the dependency graph and perform latency analysis 
+** Check the ELK entries for this flow
+
+= Solutions
+
+Below you can find solutions for all assingments.
+
+== Solution for Assignment 1
+
+Click here to go back to <<assignment-1>>.
+
+=== Config-Server
+
+.ConfigServerApplication.java
+```java
+package com.example.configserver;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.config.server.EnableConfigServer;
+
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigServerApplication.class, args);
+	}
+
+}
+```
+
+.bootstrap.properties
+```
+encrypt.key="Secret Key"
+```
+
+.application.properties
+```
+server.port: 8888
+# change to your org
+spring.cloud.config.server.git.uri: https://github.com/marcingrzejszczak/config-repo
+```
+
+=== Config Client
+
+.ConfigClientApplication.java
+```java
+package com.example.demo;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+public class ConfigClientApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigClientApplication.class, args);
+	}
+
+}
+
+@RestController
+@RefreshScope
+class ConfigClientController {
+
+	private final String value;
+
+	ConfigClientController(@Value("${foo:test}") String value) {
+		this.value = value;
+	}
+
+	@GetMapping("/foo")
+	String foo() {
+		return this.value;
+	}
+}
+
+// assumes [bonus: {cipher}a502e8271750e1a455053b58eee3044c57dee06bfe9f310cc93b9edf4d01f360] check https://github.com/marcingrzejszczak/config-repo/blob/master/foo.properties#L3
+@RestController
+class BonusController {
+
+	private final String value;
+
+	BonusController(@Value("${bonus:test}") String value) {
+		this.value = value;
+	}
+
+	@GetMapping("/bonus")
+	String foo() {
+		return this.value;
+	}
+}
+```
+
+.application.properties
+```
+server.port=9080
+spring.application.name=foo
+management.endpoints.web.exposure.include=*
+```
+
+== Solution for Assignment 2
+
+Click here to go back to <<assignment-2>>.
+
+=== Eureka Server
+
+.EurekaServerApplication.java
+```java
+package com.example.eurekaserver;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaServerApplication.class, args);
+	}
+
+}
+```
+
+.application.yml
+```yml
+server.port: 8761
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    instanceInfoReplicationIntervalSeconds: 1
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka
+```
+
+=== Fraud Detection
+
+.FraudDetectionApplication.java
+```java
+package com.example.frauddetection;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+public class FraudDetectionApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FraudDetectionApplication.class, args);
+	}
+
+}
+
+@RestController
+class FraudDetectionController {
+	@GetMapping("/frauds")
+	List<String> frauds() {
+		System.out.println("\n\nGot fraud request\n\n");
+		return Arrays.asList("josh", "marcin");
+	}
+}
+```
+
+.application.yml
+```yml
+server.port: 9080
+spring.application.name: fraud-detection
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    instanceInfoReplicationIntervalSeconds: 1
+    registryFetchIntervalSeconds: 1
+```
+
+=== Loan Issuance
+
+.LoanIssuanceApplication.java
+```java
+package com.example.loanissuance;
+
+import java.util.List;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+@EnableFeignClients
+public class LoanIssuanceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(LoanIssuanceApplication.class, args);
+	}
+
+	@Bean
+	@LoadBalanced
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+}
+
+@RestController
+class LoanIssuanceController {
+	
+	private final RestTemplate restTemplate;
+	private final FraudClient fraudClient;
+
+	LoanIssuanceController(RestTemplate restTemplate, FraudClient fraudClient) {
+		this.restTemplate = restTemplate;
+		this.fraudClient = fraudClient;
+	}
+
+	@GetMapping("/resttemplate/loan/{id}/fraud")
+	@SuppressWarnings("unchecked")
+	List<String> restTemplateFrauds(@PathVariable("id") int id) {
+		System.out.println("\n\nRest Template: Got loan/" + id + "/fraud request\n\n");
+		return this.restTemplate.getForObject("http://fraud-detection/frauds", List.class);
+	}
+
+	@GetMapping("/openfeign/loan/{id}/fraud")
+	@SuppressWarnings("unchecked")
+	List<String> frauds(@PathVariable("id") int id) {
+		System.out.println("\n\nFeign: Got loan/" + id + "/fraud request\n\n");
+		return this.fraudClient.frauds();
+	}
+}
+
+@FeignClient("fraud-detection")
+interface FraudClient {
+
+	@GetMapping("/frauds")
+	List<String> frauds();
+
+}
+```
+
+.application.yml
+```yml
+server.port: 9081
+spring.application.name: loan-issuance
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    instanceInfoReplicationIntervalSeconds: 1
+    registryFetchIntervalSeconds: 1
+```
+
+== Solution for Assignment 3
+
+Click here to go back to <<assignment-3>>.
+
+=== Eureka Server
+
+.EurekaServerApplication.java
+```java
+package com.example.eurekaserver;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaServerApplication.class, args);
+	}
+
+}
+```
+
+.application.yml
+```yml
+server.port: 8761
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    instanceInfoReplicationIntervalSeconds: 1
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka
+```
+
+=== Fraud Detection
+
+.pom.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>fraud-detection</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>fraud-detection</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<!-- Add zipkin and prometheus -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+```
+
+.FraudDetectionApplication.java
+```java
+package com.example.frauddetection;
+
+import java.util.Arrays;
+import java.util.List;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+public class FraudDetectionApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FraudDetectionApplication.class, args);
+	}
+
+}
+
+@RestController
+class FraudDetectionController {
+
+	// 1 - add logging
+	private static final Logger log = LoggerFactory.getLogger(FraudDetectionController.class);
+
+	// 2 - add counter
+	private final Counter counter;
+
+	FraudDetectionController(MeterRegistry meterRegistry) {
+		this.counter = meterRegistry.counter("frauds_counter");
+	}
+
+	@GetMapping("/frauds")
+	List<String> frauds() {
+		log.info("\n\nGot fraud request\n\n");
+		// 3 - increment counter
+		this.counter.increment();
+		return Arrays.asList("josh", "marcin");
+	}
+
+	// 4 - return a counter value
+	@GetMapping("/frauds/counter")
+	double countFraudsWithCounter() {
+		return this.counter.count();
+	}
+
+}
+```
+
+.application.yml
+```yml
+server.port: 9080
+spring.application.name: fraud-detection
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    instanceInfoReplicationIntervalSeconds: 1
+    registryFetchIntervalSeconds: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - metrics
+          - prometheus
+
+logging.level.com.netflix: ERROR
+```
+
+=== Loan Issuance
+
+.pom.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>loan-issuance</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>loan-issuance</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		<!-- Add circuitbreaker, micrometer-resilience4j, zipkin and prometheus -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-micrometer</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+```
+
+.LoanIssuanceApplication.java
+```java
+package com.example.loanissuance;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.bouncycastle.LICENSE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+@EnableFeignClients
+public class LoanIssuanceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(LoanIssuanceApplication.class, args);
+	}
+
+	@Bean
+	@LoadBalanced
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+}
+
+@RestController
+class LoanIssuanceController {
+
+	private static final Logger log = LoggerFactory.getLogger(LoanIssuanceController.class);
+
+	private final RestTemplate restTemplate;
+	private final FraudClient fraudClient;
+	// 1 - add a Circuit Breaker Factory
+	private final CircuitBreakerFactory factory;
+
+	LoanIssuanceController(RestTemplate restTemplate, FraudClient fraudClient, CircuitBreakerFactory factory) {
+		this.restTemplate = restTemplate;
+		this.fraudClient = fraudClient;
+		this.factory = factory;
+	}
+
+	// 2 - wrap calls in crcuits
+	@GetMapping("/resttemplate/loan/{id}/fraud")
+	@SuppressWarnings("unchecked")
+	List<String> restTemplateFrauds(@PathVariable("id") int id) {
+		log.info("\n\nRest Template: Got loan/" + id + "/fraud request\n\n");
+		return factory.create("rest-template")
+				.run(() -> this.restTemplate.getForObject("http://fraud-detection/frauds", List.class));
+	}
+
+	@GetMapping("/openfeign/loan/{id}/fraud")
+	@SuppressWarnings("unchecked")
+	List<String> frauds(@PathVariable("id") int id) {
+		// 4 - change sout to loggers
+		log.info("\n\nFeign: Got loan/" + id + "/fraud request\n\n");
+		return factory.create("feign").run(this.fraudClient::frauds);
+	}
+
+	// 3 - add a call to a missing endpoint with a fallback
+	@GetMapping("/missing")
+	@SuppressWarnings("unchecked")
+	List<String> missing() {
+		return factory.create("missing").run(() -> this.restTemplate.getForObject("http://fraud-detection/missing", List.class), throwable -> Arrays.asList("fixed", "value"));
+	}
+}
+
+@FeignClient("fraud-detection")
+interface FraudClient {
+
+	@GetMapping("/frauds")
+	List<String> frauds();
+
+}
+```
+
+.application.yml
+```yml
+
+server.port: 9081
+spring.application.name: loan-issuance
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    instanceInfoReplicationIntervalSeconds: 1
+    registryFetchIntervalSeconds: 1
+
+# Expose endpoint
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - metrics
+          - prometheus
+
+logging.level.com.netflix: ERROR
+```
+
+== Solution for Assignment 4
+
+Click here to go back to <<assignment-4>>.
+
+=== Eureka Server
+
+.EurekaServerApplication.java
+```java
+package com.example.eurekaserver;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaServerApplication.class, args);
+	}
+
+}
+```
+
+.application.yml
+```yml
+server.port: 8761
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    instanceInfoReplicationIntervalSeconds: 1
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka
+```
+
+=== Fraud Detection
+
+.pom.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>fraud-detection</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>fraud-detection</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.amqp</groupId>
+			<artifactId>spring-rabbit-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-test-support</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+```
+
+.FraudDetectionApplication.java
+```java
+package com.example.frauddetection;
+
+import java.util.function.Consumer;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class FraudDetectionApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FraudDetectionApplication.class, args);
+	}
+
+	@Bean
+	@LoadBalanced
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
+	Consumer<String> frauds(RestTemplate restTemplate) {
+		return s -> {
+			System.out.println("Got a message with body [" + s + "]");
+			String response = restTemplate.getForObject("http://proxy/httpbin/uuid", String.class);
+			System.out.println("Got response from the proxy [" + response.replace("\n", "") + "]");
+		};
+	}
+
+}
+```
+
+.application.yml
+```yml
+server.port: 9080
+spring.application.name: fraud-detection
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    instanceInfoReplicationIntervalSeconds: 1
+    registryFetchIntervalSeconds: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - metrics
+          - prometheus
+
+spring.cloud.stream.bindings.frauds-in-0.destination: frauds
+logging.level.com.netflix: ERROR
+```
+
+=== Loan Issuance
+
+.pom.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>loan-issuance</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>loan-issuance</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.amqp</groupId>
+			<artifactId>spring-rabbit-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-test-support</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+```
+
+.LoanIssuanceApplication.java
+```java
+package com.example.loanissuance;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+public class LoanIssuanceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(LoanIssuanceApplication.class, args);
+	}
+}
+
+@RestController
+class LoanIssuanceController {
+
+	private final StreamBridge bridge;
+
+	LoanIssuanceController(StreamBridge bridge) {
+		this.bridge = bridge;
+	}
+
+	@PostMapping("/stream")
+	void endpointPresent(@RequestBody String body) {
+		this.bridge.send("frauds-out-0", body);
+	}
+}
+```
+
+.application.yml
+```yml
+server.port: 9081
+spring.application.name: loan-issuance
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    instanceInfoReplicationIntervalSeconds: 1
+    registryFetchIntervalSeconds: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - metrics
+          - prometheus
+
+spring.cloud.stream.source: frauds
+spring.cloud.stream.bindings.frauds-out-0.destination: frauds
+logging.level.com.netflix: ERROR
+```
+
+=== Proxy
+
+.pom.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>proxy</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>proxy</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+```
+
+.ProxyApplication.java
+```java
+package com.example.proxy;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class ProxyApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ProxyApplication.class, args);
+	}
+
+	@Bean
+	RouteLocator myRouteLocator(RouteLocatorBuilder builder) {
+		return builder.routes()
+				.route("httpbin_route",
+						route -> route
+								.path("/httpbin/**")
+						.filters(f -> f.stripPrefix(1))
+						.uri("http://httpbin.org")
+				).build();
+	}
+}
+```
+
+.application.yml
+```yml
+server.port: 9060
+spring:
+  application.name: proxy
+eureka:
+  instance:
+    hostname: localhost
+    leaseRenewalIntervalInSeconds: 1
+  client:
+    instanceInfoReplicationIntervalSeconds: 1
+    registryFetchIntervalSeconds: 1
+logging.level.com.netflix: ERROR
+```
